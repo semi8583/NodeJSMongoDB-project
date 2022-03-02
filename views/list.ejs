@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+  <html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="/public/main.css">
+    <title>Document</title>
+  </head>
+  <body>
+    <form action="/add" method="POST">
+      <div class="form-group">
+        <label for="exampleInputEmail1">Email address</label>
+        <input type="할일" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email" name = 'title'>
+        <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+      </div>
+      <div class="form-group">
+        <label for="exampleInputPassword1">Password</label>
+        <input type="마감" class="form-control" id="exampleInputPassword1" placeholder="Password" name = 'date'> <!--POST요청으로 서버에 데이터 전송 할 때, input들에 name 쓰기-->
+      </div>
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+<!--html == ejs 하지만 서버 데이터를 html에 뿌릴 수 있다-->
+<!--<%= %>  이용해서-->
+<!-- <% for (var i =0; i<posts.length; i++){ %>
+  <h4> 할일 제목 : <%= posts[i].이름 %></h4>  
+  <p>할일 마감 날짜 : <%= posts[i].나이 %></p>
+  <button>삭제</button>
+<% } %> -->
+<h4 class="ml-2 my-3 text-center">서버에서 가져온 할일 리스트</h4>
+<!--ml-2: 마진 레프트 2, my-3: 마진 와이3-->
+
+<div class="container input-group mb-2"> <!--list?데이터이름(이 이름으로)=데이터값(이 데이터가 서버에 전달)-->
+  <input class="form-control" id="search-input">
+  <button class="input-group-append btn btn-danger" id="search">검색</button>
+</div>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script> 
+<script>
+  $('#search').click(function(){
+    console.log('클릭')
+    var 입력한값 = $('#search-input').val(); //<input>에 유저가 입력한 값
+    console.log(입력한값)
+    window.location.replace('/search?value=' + 입력한값) //쿼리 스트링
+  });
+</script>
+
+<div class="container"> <!--좌우여백-->
+  <ul class="list-group">
+    <% for (var i=0; i<posts.length; i++){ %>
+      <li class="list-group-item">
+        <p> 글번호 <%= posts[i]._id %>
+        </p>
+        <h4> 할일 제목 : <%= posts[i].제목 %>
+        </h4>
+        <!--<%= %>  이용해서-->
+        <p>할일 마감 날짜 : <%= posts[i].날짜 %>
+        </p>
+        <button class="btn btn-danger delete" data-id="<%= posts[i]._id %>">삭제</button>
+        <button class="btn btn-danger edit" data-id="<%= posts[i]._id %>">수정</button>
+      </li>
+      <% } %>
+  </ul>
+</div>
+<!--AJAX: 자바스크립트로 서버와 통신하는데 새로고침없이 서버에 요청하는걸 도와주는 js 문법-->
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script> 
+<script>  
+  
+  $('.delete').click(function(e){//클래스가 delete인 요소를 클릭하면 ajax를 실행 
+    var 글번호 = e.target.dataset.id;
+    var 지금누른거 = $(this);
+    $.ajax({ // ajax 문법
+      method : 'DELETE',
+      url : '/delete',
+      data : {_id : 글번호} //delete 경로로 DELETE 요청을 하는데 요청과 함께 '1번게시물' 이라는 데이터를 보내주세요
+    }).done(function(result){
+      //ajax성공하면 이걸 실행하라 
+      console.log('result: ' + result)//여기 콘솔창은 브라우저 콘솔창
+      console.log('여기 콘솔창은 브라우저 콘솔창: 성공함')
+      지금누른거.parent('li').fadeOut();
+    }).fail(function(err){
+     // 실패시 실행할 코드는 여기
+     console.log('err: '+err)
+   }); 
+  })
+
+  $('.edit').click(function(e){
+    var 글번호 = e.target.dataset.id;
+    var 지금누른거 = $(this);
+    $.ajax({
+      method : 'POST',
+      url : '/edit',
+      data : {_id : 글번호}
+    }).done(function(result){
+      console.log('result : ' + result)
+    }).fail(function(err){
+      console.log('err: ' + err)
+    });
+  })
+
+</script>
+  </body>
+</html>
